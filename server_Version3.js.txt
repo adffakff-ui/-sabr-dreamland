@@ -1,0 +1,237 @@
+// server.js (محدث — Basic Auth + rate limiting + جلسات + API وإدارة)
+const express = require('express');
+const path = require('path');
+const fs = require('fs').promises;
+const nodemailer = require('nodemailer');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const cors = require('cors');
+const session = require('express-session');
+const rateLimit = require('express-rate-limit');
+
+const DATA_DIR = path.join(__dirname, 'data');
+const BOOKINGS_FILE = path.join(DATA_DIR, 'bookings.json');
+const CONTACTS_FILE = path.join(DATA_DIR, 'contacts.json');
+
+async function ensureDataDir(){
+  await fs.mkdir(DATA_DIR, { recursive: true });
+  for (const file of [BOOKINGS_FILE, CONTACTS_FILE]){
+    try { await fs.access(file); } catch (e) { await fs.writeFile(file, '[]', 'utf8'); }
+  }
+}
+async function appendJson(filePath, obj){
+  const content = await fs.readFile(filePath, 'utf8');
+  const arr = JSON.parse(content || '[]');
+  arr.push(obj);
+  await fs.writeFile(filePath, JSON.stringify(arr, null, 2), 'utf8');
+}
+async function readJson(filePath){
+  const content = await fs.readFile(filePath, 'utf8');
+  return JSON.parse(content || '[]');
+}
+async function writeJson(filePath, arr){
+  await fs.writeFile(filePath, JSON.stringify(arr, null, 2), 'utf8');
+}
+
+async function sendNotification(subject, text){
+  const host = process.env.SMTP_HOST;
+  const port = process.env.SMTP_PORT;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const to = process.env.EMAIL_TO;
+  if(!host || !port || !user || !pass || !to) {
+    console.log('SMTP not configured - skipping email notification');
+    return;
+  }
+  const transporter = nodemailer.createTransport({
+    host, port: Number(port), secure: Number(port) === 465,
+    auth: { user, pass }
+  });
+  await transporter.sendMail({ from: user, to, subject, text });
+}
+
+const app = express();
+app.use(helmet());
+app.use(morgan('dev'));
+app.use(cors());
+app.use(express.json());
+
+// جلسات بسيطة (للاختبار). في الإنتاج استخدم مخزن جلسات مثل Redis.
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'change_this_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, httpOnly: true, maxAge: 1000 * 60 * 60 * 4 }
+}));
+
+// Rate limiter: حماية endpoint تسجيل الدخول الإداري
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success:false, message:'محاولات كثيرة، لطفًا انتظر 15 دقيقة ثم أعد المحاولة.' }
+});
+
+// Basic Auth middleware (اختياري — فعّله عبر ADMIN_BASIC_ENABLE=true)
+function basicAuth(req, res, next){
+  if(String(process.env.ADMIN_BASIC_ENABLE).toLowerCase() !== 'true') return next();
+  const auth = req.headers.authorization;
+  if(!auth){
+    res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
+    return res.status(401).send('Authentication required');
+  }
+  const parts = auth.split(' ');
+  if(parts.length !== 2 || parts[0] !== 'Basic') return res.status(401).send('Invalid auth');
+  const decoded = Buffer.from(parts[1], 'base64').toString('utf8');
+  const idx = decoded.indexOf(':');
+  if(idx === -1) return res.status(401).send('Invalid auth');
+  const user = decoded.slice(0, idx);
+  const pass = decoded.slice(idx + 1);
+  if(user === process.env.ADMIN_BASIC_USER && pass === process.env.ADMIN_BASIC_PASS) return next();
+  res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
+  return res.status(401).send('Unauthorized');
+}
+
+// ضع Basic Auth على صفحات الإدارة وواجهات الادمن
+app.use(['/admin', '/admin/*', '/api/admin', '/api/admin/*', '/admin/login'], basicAuth);
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+/* ---------- API للمستخدم العام (حجز/تواصل) ---------- */
+app.post('/api/book', async (req, res) => {
+  try {
+    const { name, phone, checkin, checkout, roomType, guests, notes } = req.body || {};
+    if(!name || !phone || !checkin || !checkout || !roomType){
+      return res.status(400).json({ success:false, message: 'الرجاء ملء الحقول المطلوبة' });
+    }
+    if(new Date(checkout) <= new Date(checkin)){
+      return res.status(400).json({ success:false, message: 'تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول' });
+    }
+    const entry = {
+      id: Date.now(),
+      name, phone, checkin, checkout, roomType, guests: guests || 1, notes: notes || '',
+      createdAt: new Date().toISOString()
+    };
+    await ensureDataDir();
+    await appendJson(BOOKINGS_FILE, entry);
+
+    const subject = `حجز جديد من ${name}`;
+    const text = `بيانات الحجز:\n${JSON.stringify(entry, null, 2)}`;
+    await sendNotification(subject, text);
+
+    return res.json({ success:true, message: 'تم استلام طلب الحجز. سنتواصل معكم قريباً.' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success:false, message: 'خطأ في الخادم' });
+  }
+});
+
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, message } = req.body || {};
+    if(!name || !email || !message) return res.status(400).json({ success:false, message: 'الرجاء ملء الحقول المطلوبة' });
+
+    const entry = { id: Date.now(), name, email, message, createdAt: new Date().toISOString() };
+    await ensureDataDir();
+    await appendJson(CONTACTS_FILE, entry);
+
+    const subject = `رسالة جديدة من ${name}`;
+    const text = `المرسل: ${name}\nالبريد: ${email}\n\n${message}`;
+    await sendNotification(subject, text);
+
+    return res.json({ success:true, message: 'تم استلام رسالتك. شكرًا لتواصلك معنا.' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success:false, message: 'خطأ في الخادم' });
+  }
+});
+
+/* ---------- واجهات إدارة: تسجيل الدخول / الخروج ---------- */
+app.get('/admin/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin_login.html'));
+});
+
+// POST تسجيل الدخول — مع rate limiter
+app.post('/admin/login', loginLimiter, async (req, res) => {
+  try {
+    const { username, password } = req.body || {};
+    const adminUser = process.env.ADMIN_USER || 'admin';
+    const adminPass = process.env.ADMIN_PASS || 'adminpass';
+    if(username === adminUser && password === adminPass){
+      req.session.isAdmin = true;
+      return res.json({ success:true, message:'تم تسجيل الدخول' });
+    }
+    return res.status(401).json({ success:false, message:'بيانات الدخول غير صحيحة' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success:false, message:'خطأ في الخادم' });
+  }
+});
+
+app.get('/admin/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/admin/login');
+  });
+});
+
+// Middleware للتحقق من صلاحية المدير (جلسة)
+function ensureAdmin(req, res, next){
+  if(req.session && req.session.isAdmin) return next();
+  if(req.path.startsWith('/api/admin')) return res.status(401).json({ success:false, message:'Unauthorized' });
+  return res.redirect('/admin/login');
+}
+
+// صفحة لوحة الإدارة محمية
+app.get('/admin', ensureAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+/* ---------- API إدارية محمية ---------- */
+app.get('/api/admin/bookings', ensureAdmin, async (req, res) => {
+  try { await ensureDataDir(); const data = await readJson(BOOKINGS_FILE); return res.json({ success:true, data }); }
+  catch (err) { console.error(err); return res.status(500).json({ success:false, message:'خطأ في الخادم' }); }
+});
+
+app.get('/api/admin/contacts', ensureAdmin, async (req, res) => {
+  try { await ensureDataDir(); const data = await readJson(CONTACTS_FILE); return res.json({ success:true, data }); }
+  catch (err) { console.error(err); return res.status(500).json({ success:false, message:'خطأ في الخادم' }); }
+});
+
+app.delete('/api/admin/bookings/:id', ensureAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    await ensureDataDir();
+    const arr = await readJson(BOOKINGS_FILE);
+    const filtered = arr.filter(x => x.id !== id);
+    await writeJson(BOOKINGS_FILE, filtered);
+    return res.json({ success:true, message:'تم حذف الحجز' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success:false, message:'خطأ في الخادم' });
+  }
+});
+
+app.delete('/api/admin/contacts/:id', ensureAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    await ensureDataDir();
+    const arr = await readJson(CONTACTS_FILE);
+    const filtered = arr.filter(x => x.id !== id);
+    await writeJson(CONTACTS_FILE, filtered);
+    return res.json({ success:true, message:'تم حذف الرسالة' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success:false, message:'خطأ في الخادم' });
+  }
+});
+
+// SPA fallback
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

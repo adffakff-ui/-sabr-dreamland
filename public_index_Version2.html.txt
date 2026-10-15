@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>استراحة صبر دريم لاند</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="logo">صبر</div>
+        <div>
+          <div style="font-weight:700">استراحة صبر</div>
+          <div style="font-size:13px;color:var(--muted)">دريم لاند</div>
+        </div>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#home">الرئيسية</a></li>
+          <li><a href="#about">من نحن</a></li>
+          <li><a href="#rooms">الغرف</a></li>
+          <li><a href="#services">الخدمات</a></li>
+          <li><a href="#gallery">المعرض</a></li>
+          <li><a href="#booking">حجز</a></li>
+          <li><a href="#contact">تواصل</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section id="home" class="hero">
+      <div class="hero-inner">
+        <h1>مرحبا بكم في استراحة صبر — دريم لاند</h1>
+        <p>استمتعوا بأجواء عائلية هادئة، مرافق متكاملة، ومساحات خضراء. نوفّر غرفًا خاصة واستراحات مناسبة للمناسبات العائلية.</p>
+        <div class="actions">
+          <a class="btn" href="#booking">احجز الآن</a>
+          <a class="btn ghost" href="#gallery">شاهد المعرض</a>
+        </div>
+        <div style="margin-top:18px;color:var(--muted);font-size:14px">
+          <strong>العنوان:</strong> طريق المنتزه، مدينة دريم لاند — <strong>هاتف:</strong> 0100-123-4567
+        </div>
+      </div>
+
+      <div class="card" style="text-align:center">
+        <h3>تفاصيل سريعة</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+          <div class="flex"><strong>سعر الليلة:</strong><span style="margin-inline-start:auto;color:var(--accent)">من 800 ر.س</span></div>
+          <div class="flex"><strong>أقصى سعة:</strong><span style="margin-inline-start:auto">6 أشخاص</span></div>
+          <div class="flex"><strong>المرافق:</strong><span style="margin-inline-start:auto">مسبح، مشاوي، موقف سيارات</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="grid">
+        <div class="card">
+          <h2>من نحن</h2>
+          <p>استراحة صبر دريم لاند مكان مصمّم للراحة والترفيه للعائلات والمجموعات الصغيرة. هدفنا توفير تجربة مريحة وآمنة مع خدمات مميزة وأسعار مناسبه.</p>
+          <ul style="color:var(--muted);margin-top:8px">
+            <li>موقع متميز وقريب من طرق رئيسية</li>
+            <li>مرافق نظيفة وطاقم متعاون</li>
+            <li>خدمات حسب الطلب (تنظيف، مشاوي، تجهيز مناسبات)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOMS -->
+    <section id="rooms" class="rooms">
+      <h2>الغرف</h2>
+      <div class="cards">
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=800&auto=format&fit=crop" alt="غرفة عائلية">
+          <h3>غرفة عائلية</h3>
+          <p style="color:var(--muted)">مناسبة لعائلة أو مجموعة صغيرة، سريرين مزدوجين، جلسة داخلية، حمام خاص.</p>
+          <div style="margin-top:10px"><strong>السعر:</strong> 1000 ر.س / الليلة</div>
+        </div>
+
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1505691723518-36a8a5d6b0f8?q=80&w=800&auto=format&fit=crop" alt="شالية">
+          <h3>شالية خاص</h3>
+          <p style="color:var(--muted)">شالية مستقل مع موقف خاص ومطبخ صغير، مناسب للعوائل.</p>
+          <div style="margin-top:10px"><strong>السعر:</strong> 1500 ر.س / الليلة</div>
+        </div>
+
+        <div class="card">
+          <img src="https://images.unsplash.com/photo-1505692794400-1a1b8f0a4b9b?q=80&w=800&auto=format&fit=crop" alt="فيلا">
+          <h3>فيلا صغيرة</h3>
+          <p style="color:var(--muted)">فيلا مع مسبح خاص وحديقة، تستوعب حتى 10 أشخاص.</p>
+          <div style="margin-top:10px"><strong>السعر:</strong> 3000 ر.س / الليلة</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="services">
+      <h2>الخدمات</h2>
+      <ul>
+        <li class="service-item"><div class="service-icon">م</div><div><strong>مسبح</strong><div style="color:var(--muted)">مسبح نظيف مُدفأ حسب الموسم</div></div></li>
+        <li class="service-item"><div class="service-icon alt">ش</div><div><strong>مشاوي</strong><div style="color:var(--muted)">مكان للشواء مع أدوات جاهزة</div></div></li>
+        <li class="service-item"><div class="service-icon alt2">م</div><div><strong>مواقف سيارات</strong><div style="color:var(--muted)">موقف خاص وآمن</div></div></li>
+      </ul>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery">
+      <h2>المعرض</h2>
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1505691723518-36a8a5d6b0f8?q=80&w=800&auto=format&fit=crop" alt="صورة 1" data-large="https://images.unsplash.com/photo-1505691723518-36a8a5d6b0f8?q=80&w=1600&auto=format&fit=crop">
+        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=800&auto=format&fit=crop" alt="صورة 2" data-large="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1600&auto=format&fit=crop">
+        <img src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=800&auto=format&fit=crop" alt="صورة 3" data-large="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1600&auto=format&fit=crop">
+        <img src="https://images.unsplash.com/photo-1505691723518-36a8a5d6b0f8?q=80&w=800&auto=format&fit=crop" alt="صورة 4" data-large="https://images.unsplash.com/photo-1505691723518-36a8a5d6b0f8?q=80&w=1600&auto=format&fit=crop">
+      </div>
+    </section>
+
+    <!-- BOOKING -->
+    <section id="booking">
+      <h2>نموذج الحجز السريع</h2>
+      <div class="card">
+        <form id="bookingForm">
+          <div class="row">
+            <div class="col">
+              <label>الاسم الكامل</label>
+              <input required type="text" id="name" name="name" placeholder="الاسم الكامل">
+            </div>
+            <div class="col">
+              <label>الهاتف</label>
+              <input required type="tel" id="phone" name="phone" placeholder="05xxxxxxxx">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label>تاريخ الوصول</label>
+              <input required type="date" id="checkin" name="checkin">
+            </div>
+            <div class="col">
+              <label>تاريخ المغادرة</label>
+              <input required type="date" id="checkout" name="checkout">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label>نوع الخدمة</label>
+              <select id="roomType" name="roomType">
+                <option value="family">غرفة عائلية</option>
+                <option value="chalet">شالية</option>
+                <option value="villa">فيلا</option>
+              </select>
+            </div>
+            <div class="col">
+              <label>عدد الأشخاص</label>
+              <input type="number" id="guests" name="guests" min="1" max="20" value="4">
+            </div>
+          </div>
+
+          <label>ملاحظات إضافية</label>
+          <textarea id="notes" name="notes" rows="3" placeholder="أي متطلبات خاصة"></textarea>
+
+          <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:8px">
+            <button type="submit" class="btn">إرسال الحجز</button>
+            <button type="button" class="btn ghost" onclick="document.querySelector('#bookingForm').reset()">مسح</button>
+          </div>
+
+          <div id="bookingMsg" class="muted" style="margin-top:8px;color:var(--muted)"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials">
+      <h2>آراء العملاء</h2>
+      <div class="cards">
+        <div class="card">
+          <strong>أحمد</strong>
+          <p class="quote">"مكان رائع ونظيف، قضينا عطلة لا تُنسى."</p>
+        </div>
+        <div class="card">
+          <strong>نورة</strong>
+          <p class="quote">"الخدمة ممتازة والمسبح مُعتنى به جيدًا."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <h2>تواصل معنا</h2>
+      <div class="grid" style="grid-template-columns:1fr 320px">
+        <div class="card">
+          <form id="contactForm">
+            <label>الاسم</label>
+            <input required type="text" id="cname" name="name">
+            <label>البريد الإلكتروني</label>
+            <input required type="email" id="cemail" name="email">
+            <label>الرسالة</label>
+            <textarea required id="cmsg" name="message" rows="4"></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn" type="submit">إرسال</button>
+              <button class="btn ghost" type="button" onclick="document.querySelector('#contactForm').reset()">مسح</button>
+            </div>
+            <div id="contactMsg" class="muted" style="margin-top:8px;color:var(--muted)"></div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>معلومات الاتصال</h3>
+          <p><strong>العنوان:</strong> طريق المنتزه، دريم لاند</p>
+          <p><strong>هاتف:</strong> 0100-123-4567</p>
+          <p><strong>البريد:</strong> info@sabrdreamland.example</p>
+          <div style="margin-top:12px">
+            <iframe style="width:100%;height:180px;border:0;border-radius:8px" src="https://maps.google.com/maps?q=Cairo&t=&z=13&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center">
+      <div>© 2026 استراحة صبر دريم لاند</div>
+      <div style="color:var(--muted)">تصميم وبرمجة — فريق صبر</div>
+    </div>
+  </footer>
+
+  <!-- GALLERY MODAL -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="close-btn" onclick="closeModal()">✕</button>
+      <img id="modalImg" src="" alt="صورة" style="width:100%;height:60vh;object-fit:cover;border-radius:8px">
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

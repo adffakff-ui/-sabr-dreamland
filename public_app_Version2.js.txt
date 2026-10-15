@@ -1,0 +1,101 @@
+// Smooth scroll for nav (supports anchors)
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', function(e){
+    const href = this.getAttribute('href');
+    if(href.startsWith('#')){
+      e.preventDefault();
+      const el = document.querySelector(href);
+      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  });
+});
+
+// Gallery modal
+const modal = document.getElementById('modal');
+const modalImg = document.getElementById('modalImg');
+document.querySelectorAll('.gallery img').forEach(img=>{
+  img.addEventListener('click', ()=>{
+    modalImg.src = img.dataset.large || img.src;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+  });
+});
+function closeModal(){
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+  modalImg.src = '';
+}
+modal.addEventListener('click', (e)=>{
+  if(e.target === modal) closeModal();
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') closeModal();
+});
+
+// Booking form submit (AJAX)
+document.getElementById('bookingForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const msgEl = document.getElementById('bookingMsg');
+  msgEl.style.color = ''; msgEl.textContent = 'جاري الإرسال...';
+
+  const form = new FormData(this);
+  const payload = Object.fromEntries(form.entries());
+
+  if(new Date(payload.checkout) <= new Date(payload.checkin)){
+    msgEl.style.color = 'crimson';
+    msgEl.textContent = 'تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول';
+    return;
+  }
+
+  try{
+    const res = await fetch('/api/book', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success){
+      msgEl.style.color = 'green';
+      msgEl.textContent = data.message || 'تم إرسال طلب الحجز بنجاح';
+      this.reset();
+    } else {
+      msgEl.style.color = 'crimson';
+      msgEl.textContent = data.message || 'حدث خطأ أثناء الإرسال';
+    }
+  }catch(err){
+    msgEl.style.color = 'crimson';
+    msgEl.textContent = 'تعذر الوصول للخادم';
+    console.error(err);
+  }
+});
+
+// Contact form submit (AJAX)
+document.getElementById('contactForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const msgEl = document.getElementById('contactMsg');
+  msgEl.style.color = ''; msgEl.textContent = 'جاري الإرسال...';
+
+  const form = new FormData(this);
+  const payload = Object.fromEntries(form.entries());
+
+  try{
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success){
+      msgEl.style.color = 'green';
+      msgEl.textContent = data.message || 'تم إرسال الرسالة بنجاح';
+      this.reset();
+    } else {
+      msgEl.style.color = 'crimson';
+      msgEl.textContent = data.message || 'حدث خطأ أثناء الإرسال';
+    }
+  }catch(err){
+    msgEl.style.color = 'crimson';
+    msgEl.textContent = 'تعذر الوصول للخادم';
+    console.error(err);
+  }
+});

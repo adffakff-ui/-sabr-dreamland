@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>تسجيل دخول المدير — لوحة إدارة</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;margin:0;display:flex;align-items:center;justify-content:center;height:100vh}
+    .card{width:360px;background:#fff;padding:20px;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,0.08);text-align:center}
+    input{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #e6e9ef;box-sizing:border-box}
+    button{padding:10px 14px;border-radius:8px;background:#2b8a8a;color:#fff;border:none;cursor:pointer}
+    .muted{color:#6b7280;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>تسجيل دخول المدير</h2>
+    <p class="muted">أدخل بيانات المسؤول للوصول للوحة</p>
+    <div style="text-align:right">
+      <label>اسم المستخدم</label>
+      <input id="username" type="text" placeholder="admin">
+      <label>كلمة المرور</label>
+      <input id="password" type="password" placeholder="••••••••">
+      <div id="msg" class="muted" style="height:20px;margin-top:8px"></div>
+      <div style="margin-top:12px">
+        <button onclick="login()">دخول</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function login(){
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const msg = document.getElementById('msg');
+      msg.style.color=''; msg.textContent='جاري التحقق...';
+      try{
+        const res = await fetch('/admin/login', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if(data.success){
+          window.location.href = '/admin';
+        } else {
+          msg.style.color = 'crimson';
+          msg.textContent = data.message || 'فشل تسجيل الدخول';
+        }
+      }catch(err){
+        msg.style.color='crimson';
+        msg.textContent='خطأ في الاتصال بالخادم';
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

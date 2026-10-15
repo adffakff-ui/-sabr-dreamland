@@ -1,0 +1,70 @@
+async function fetchBookings(){
+  const res = await fetch('/api/admin/bookings');
+  if(res.status === 401){ location.href = '/admin/login'; return; }
+  const data = await res.json();
+  if(!data.success) return;
+  const tbody = document.querySelector('#bookingsTable tbody');
+  tbody.innerHTML = '';
+  data.data.sort((a,b)=>b.id - a.id).forEach(b => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escapeHtml(b.name)}</td>
+      <td>${escapeHtml(b.checkin)} → ${escapeHtml(b.checkout)} (${b.guests || 1} أشخاص)</td>
+      <td>${escapeHtml(b.roomType)}</td>
+      <td>${escapeHtml(b.phone)}</td>
+      <td class="small muted">${new Date(b.createdAt).toLocaleString()}</td>
+      <td><button class="btn danger" onclick="deleteBooking(${b.id})">حذف</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function fetchContacts(){
+  const res = await fetch('/api/admin/contacts');
+  if(res.status === 401){ location.href = '/admin/login'; return; }
+  const data = await res.json();
+  if(!data.success) return;
+  const tbody = document.querySelector('#contactsTable tbody');
+  tbody.innerHTML = '';
+  data.data.sort((a,b)=>b.id - a.id).forEach(c => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escapeHtml(c.name)}</td>
+      <td>${escapeHtml(c.email)}</td>
+      <td>${escapeHtml(c.message)}</td>
+      <td class="small muted">${new Date(c.createdAt).toLocaleString()}</td>
+      <td><button class="btn danger" onclick="deleteContact(${c.id})">حذف</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function deleteBooking(id){
+  if(!confirm('هل تريد حذف هذا الحجز؟')) return;
+  const res = await fetch('/api/admin/bookings/' + id, { method:'DELETE' });
+  const data = await res.json();
+  if(data.success) fetchBookings();
+  else alert(data.message || 'خطأ');
+}
+
+async function deleteContact(id){
+  if(!confirm('هل تريد حذف هذه الرسالة؟')) return;
+  const res = await fetch('/api/admin/contacts/' + id, { method:'DELETE' });
+  const data = await res.json();
+  if(data.success) fetchContacts();
+  else alert(data.message || 'خطأ');
+}
+
+function escapeHtml(s){
+  if(!s && s !== 0) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+fetchBookings();
+fetchContacts();
+setInterval(()=>{ fetchBookings(); fetchContacts(); }, 30_000);

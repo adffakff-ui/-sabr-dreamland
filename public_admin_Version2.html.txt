@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>لوحة الإدارة — استراحة صبر</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;margin:0;padding:20px;color:#0f1720}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .btn{padding:8px 12px;border-radius:8px;background:#2b8a8a;color:#fff;border:none;cursor:pointer}
+    .btn.danger{background:#ef4444}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .card{background:#fff;padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06);height:70vh;overflow:auto}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #eef2f7;text-align:right}
+    th{background:#f8fafc}
+    .muted{color:#6b7280}
+    .small{font-size:13px}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h2>لوحة إدارة الاستراحة</h2>
+      <div class="muted small">عرض الحجوزات والرسائل — يمكنك حذف أي إدخال</div>
+    </div>
+    <div>
+      <a class="btn" href="/">عرض الموقع</a>
+      <a class="btn" href="/admin/logout">خروج</a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h3>الحجوزات</h3>
+      <table id="bookingsTable">
+        <thead>
+          <tr><th>الاسم</th><th>التواريخ</th><th>خدمة</th><th>هاتف</th><th>إنشاء</th><th>إجراء</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>الرسائل</h3>
+      <table id="contactsTable">
+        <thead>
+          <tr><th>الاسم</th><th>البريد</th><th>الرسالة</th><th>إنشاء</th><th>إجراء</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="/admin.js"></script>
+</body>
+</html>
